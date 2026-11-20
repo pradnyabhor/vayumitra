@@ -1,4 +1,4 @@
-# VayuMitra (साँस) — Urban Air Quality & Winter Smog Assistant
+# VayuMitra — Urban Air Quality & Winter Smog Assistant
 
 > **One-Line Pitch:** A deterministic, privacy-first environmental health assistant that turns winter smog forecasts into personalized, evidence-grounded daily action plans — separating family exposure from city emissions while enforcing strict safety guardrails and $k$-anonymity.
 
