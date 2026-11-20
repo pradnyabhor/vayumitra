@@ -4,16 +4,16 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/vayumitra/vayumitra-hack2skills:$BUILD_ID'
+      - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/saans/vayumitra:$BUILD_ID'
       - '-t'
-      - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/vayumitra/vayumitra-hack2skills:latest'
+      - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/saans/vayumitra:latest'
       - '.'
 
   # 2. Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/vayumitra/vayumitra-hack2skills:latest'
+      - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/saans/vayumitra:latest'
 
   # 3. Deploy to Cloud Run in asia-south1
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -21,16 +21,16 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'vayumitra-hack2skills'
-      - '--image=asia-south1-docker.pkg.dev/ai-builder-sql-copilot/vayumitra/vayumitra-hack2skills:latest'
+      - 'vayumitra'
+      - '--image=asia-south1-docker.pkg.dev/ai-builder-sql-copilot/saans/vayumitra:latest'
       - '--region=asia-south1'
       - '--platform=managed'
       - '--allow-unauthenticated'
       - '--port=8080'
-      - '--set-env-vars=NODE_ENV=production,GCP_PROJECT_ID=ai-builder-sql-copilot,GCP_REGION=asia-south1,FIRESTORE_DATABASE=vayumitra,DEMO_MODE=true'
+      - '--set-env-vars=NODE_ENV=production,GCP_PROJECT_ID=ai-builder-sql-copilot,GCP_REGION=asia-south1,FIRESTORE_DATABASE=saans,DEMO_MODE=true'
 
 images:
-  - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/vayumitra/vayumitra-hack2skills:latest'
+  - 'asia-south1-docker.pkg.dev/ai-builder-sql-copilot/saans/vayumitra:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY

@@ -2,9 +2,14 @@
 
 > **One-Line Pitch:** A deterministic, privacy-first environmental health assistant that turns winter smog forecasts into personalized, evidence-grounded daily action plans — separating family exposure from city emissions while enforcing strict safety guardrails and $k$-anonymity.
 
-- **Live URL:** [https://vayumitra-205781654913.asia-south1.run.app](https://vayumitra-205781654913.asia-south1.run.app)
+- **Live URL:** [https://vayumitra-sds4thdc6a-el.a.run.app](https://vayumitra-sds4thdc6a-el.a.run.app)
 - **Local Dev Server:** `http://localhost:8080`
 - **Cloud Run Service:** `vayumitra` in `asia-south1` (GCP Project: `ai-builder-sql-copilot`)
+- **Video Demo Walkthrough:**
+  - **MP4 Video:** [`docs/demo/vayumitra-demo.mp4`](docs/demo/vayumitra-demo.mp4) (H.264 / AAC, 3.7 MB)
+  - **WebM Video:** [`docs/demo/vayumitra-demo.webm`](docs/demo/vayumitra-demo.webm) (VP9 / Opus, 15.2 MB)
+  - **Interactive HTML Player:** [`docs/demo/index.html`](docs/demo/index.html)
+  - **Automated Recording Scripts:** [`scripts/record-demo-video.js`](scripts/record-demo-video.js) & [`scripts/generate-voiceover.ps1`](scripts/generate-voiceover.ps1)
 - **Synthetic Demo Personas (Quick Login via Judge Demo Bar):**
   - **Riya (Working Mother / Child with Asthma):** `riya@demo.vayumitra.in` / `Password123!`
   - **Dadaji (Elder with Cardiac Stent):** `dadaji@demo.vayumitra.in` / `Password123!`
