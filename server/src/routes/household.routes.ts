@@ -167,6 +167,7 @@ export function createHouseholdRouter(c: Container): Router {
     requirePermission("REVOKE"),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
+        verifyConfirmation(req);
         await c.invitationService.revokeMember(
           req.household!.id,
           String(req.params["targetUserId"]),
@@ -223,6 +224,7 @@ export function createHouseholdRouter(c: Container): Router {
     requirePermission("REVOKE"),
     async (req: Request, res: Response, next: NextFunction) => {
       try {
+        verifyConfirmation(req);
         await c.invitationService.revokeInvitation(
           req.household!.id,
           String(req.params["id"]),

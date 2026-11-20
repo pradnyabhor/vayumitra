@@ -3,6 +3,7 @@ import { Container } from "../container.js";
 import { UserRegisterRequestSchema, UserLoginRequestSchema } from "shared";
 import { createAuthMiddleware } from "../middleware/auth.js";
 import { createRateLimiter } from "../middleware/rateLimit.js";
+import { ValidationError } from "../services/errors.js";
 
 export function createAuthRouter(c: Container): Router {
   const router = Router();
@@ -49,6 +50,38 @@ export function createAuthRouter(c: Container): Router {
       household: req.household,
     });
   });
+
+  router.post(
+    "/password",
+    authMiddleware,
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const confirmHeader = req.headers["x-confirm-action"];
+        const b = (req.body ?? {}) as Record<string, unknown>;
+        if (confirmHeader !== "true" && b.confirmAction !== true) {
+          throw new ValidationError(
+            "Password change requires confirmation header 'x-confirm-action: true' or body field 'confirmAction: true'",
+          );
+        }
+
+        const currentPassword = typeof b.currentPassword === "string" ? b.currentPassword : "";
+        const newPassword = typeof b.newPassword === "string" ? b.newPassword : "";
+        if (!currentPassword || !newPassword) {
+          throw new ValidationError("currentPassword and newPassword are required");
+        }
+
+        await c.authService.changePassword(
+          req.user!.id,
+          currentPassword,
+          newPassword,
+          req.correlationId,
+        );
+        res.status(204).send();
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
 
   return router;
 }

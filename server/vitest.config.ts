@@ -21,6 +21,11 @@ export default defineConfig({
           functions: 100,
           statements: 100,
         },
+        "src/services/**": {
+          lines: 98,
+          functions: 100,
+          statements: 98,
+        },
       },
     },
   },

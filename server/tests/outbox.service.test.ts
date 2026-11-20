@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { FakeClock } from "../src/adapters/fakeClock.js";
 import { MemoryOutboxRepository } from "../src/repositories/memory/memoryOutboxRepo.js";
-import { OutboxService, EmailSender } from "../src/services/outbox.service.js";
+import { OutboxService, EmailSender, ConsoleEmailSender } from "../src/services/outbox.service.js";
 
 class MockEmailSender implements EmailSender {
   public failMode = false;
@@ -89,5 +89,19 @@ describe("OutboxService (Pillar 4 Efficiency, Mutex, Dead-letter)", () => {
     const result = await outboxService.processOutbox(10);
     expect(result.processed).toBe(0);
     expect(result.sent).toBe(0);
+  });
+
+  it("verifies ConsoleEmailSender and in-process concurrency mutex", async () => {
+    // 1. ConsoleEmailSender returns true
+    const consoleSender = new ConsoleEmailSender();
+    const sent = await consoleSender.send("user@vayumitra.local", "Subject", "Body");
+    expect(sent).toBe(true);
+
+    // 2. In-process mutex short-circuits overlapping dispatches
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (outboxService as any).inProcessDispatching = true;
+    const inProcessRes = await outboxService.processOutbox(10);
+    expect(inProcessRes.processed).toBe(0);
+    expect(inProcessRes.sent).toBe(0);
   });
 });

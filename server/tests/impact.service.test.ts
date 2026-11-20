@@ -35,4 +35,17 @@ describe("ImpactService (FR-8, Exposure & Emissions Calculations)", () => {
     expect(res.formulaSheet.sources.length).toBeGreaterThanOrEqual(3);
     expect(res.formulaSheet.assumptions.length).toBeGreaterThanOrEqual(2);
   });
+
+  it("handles zero baseline exposure safely", () => {
+    const res = service.calculate({
+      commuteMode: "petrolCar",
+      commuteDistanceKm: 0,
+      hasPurifier: false,
+      maskWornOutdoor: false,
+      cookingFuel: "electric",
+      hoursOutdoor: 0,
+      baselineAqi: 0,
+    });
+    expect(res.familyExposure.reductionPercent).toBe(0);
+  });
 });

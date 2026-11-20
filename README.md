@@ -197,7 +197,7 @@ npm run start --workspace=server
 
 - **Security Details:** Full STRIDE threat model, RBAC matrix, and AI guardrail diagram in [`docs/SECURITY.md`](docs/SECURITY.md).
 - **Accessibility Audit:** WCAG 2.2 AA audit details, manual testing matrix, and axe-core evidence in [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
-- **Testing Breakdown:** 195 tests across 49 test files, 100% core coverage in [`docs/TESTING.md`](docs/TESTING.md).
+- **Testing Breakdown:** 216 tests across 51 test files, 100% core coverage, 99.3% services coverage in [`docs/TESTING.md`](docs/TESTING.md).
 - **Engineering Metrics:** Router sizes, bundle sizes, latency, and test counts in [`docs/METRICS.md`](docs/METRICS.md).
 - **3-Minute Demo Script:** Detailed judging walkthrough in [`docs/DEMO.md`](docs/DEMO.md).
 

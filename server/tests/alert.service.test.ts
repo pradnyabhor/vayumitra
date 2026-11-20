@@ -88,4 +88,29 @@ describe("AlertService (FR-15, Thresholds, Ack, Escalation)", () => {
     expect(escalations[0]?.eventType).toBe("SMOG_ALERT_ESCALATION");
     expect(escalations[0]?.recipient).toBe("co-guardian@vayumitra.local");
   });
+
+  it("supports forecast providers returning series instead of hours", async () => {
+    const customProvider = {
+      getCurrent: async () => scenarioProvider.getCurrent({ name: "Delhi", lat: 28.6, lng: 77.2 }),
+      getForecast: async () => ({
+        series: [
+          {
+            time: new Date(clock.now().getTime() + 86400000).toISOString(),
+            aqi: 280,
+            category: "Severe",
+          },
+        ],
+      }),
+    };
+    const customAlertService = new AlertService(
+      householdRepo,
+      outboxRepo,
+      auditRepo,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      customProvider as any,
+      clock,
+    );
+    const alerts = await customAlertService.evaluateAlertsForHousehold(householdId);
+    expect(alerts.length).toBe(1);
+  });
 });

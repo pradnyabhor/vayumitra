@@ -66,10 +66,11 @@ describe("CrossTenant Isolation Matrix (Pillar 3 Security)", () => {
       });
     const invitationAId = invRes.body.invitation.id;
 
-    // User B attempts to revoke User A's invitation
+    // User B attempts to revoke User A's invitation (even with confirmation header)
     const revokeRes = await request(app)
       .delete(`/api/v1/household/invitations/${invitationAId}`)
-      .set("Authorization", `Bearer ${tokenB}`);
+      .set("Authorization", `Bearer ${tokenB}`)
+      .set("x-confirm-action", "true");
 
     // Fails with 404 (invitation not in household B) or 403
     expect([403, 404]).toContain(revokeRes.status);

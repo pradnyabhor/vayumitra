@@ -87,5 +87,56 @@ describe("CommunityService (FR-14, k-Anonymity, Advisories)", () => {
     const outboxItems = await outboxRepo.findDueItems(clock.now(), 10);
     expect(outboxItems.length).toBe(2);
     expect(outboxItems[0]?.subject).toContain("Smog Advisory");
+
+    // List advisories
+    const advisories = await communityService.listAdvisories(comm.id);
+    expect(advisories.length).toBe(1);
+    expect(advisories[0]?.status).toBe("APPROVED");
+
+    // Approving non-existent advisory throws NotFoundError
+    await expect(
+      communityService.approveAdvisory(comm.id, "non-existent-advisory", "admin"),
+    ).rejects.toThrow("Advisory not found");
+  });
+
+  it("handles joinCommunity with invalid code and pledge management", async () => {
+    // Invalid code throws NotFoundError
+    await expect(communityService.joinCommunity("INVALID-CODE", "hh-x", "user-x")).rejects.toThrow(
+      "Community not found with provided join code",
+    );
+
+    const comm = await communityService.createCommunity(
+      "Pledge RWA",
+      "Pledge Society",
+      "admin",
+      "hh-admin",
+    );
+
+    // Create a pledge
+    const pledge = await communityService.createPledge(
+      comm.id,
+      {
+        title: "No Biomass Burning",
+        description: "Zero garden waste burning for the winter season",
+        targetParticipants: 20,
+        targetCo2eKg: 500,
+        deadline: "2026-12-31",
+      },
+      "admin",
+    );
+    expect(pledge.title).toBe("No Biomass Burning");
+    expect(pledge.targetParticipants).toBe(20);
+
+    // List pledges without user
+    const listNoUser = await communityService.listPledges(comm.id);
+    expect(listNoUser.length).toBe(1);
+
+    // Participate in pledge
+    await communityService.participatePledge(pledge.id, "user-participant");
+
+    // List pledges with user
+    const listWithUser = await communityService.listPledges(comm.id, "user-participant");
+    expect(listWithUser.length).toBe(1);
+    expect(listWithUser[0]?.hasUserPledged).toBe(true);
   });
 });

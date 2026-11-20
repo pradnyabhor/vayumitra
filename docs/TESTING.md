@@ -82,7 +82,7 @@ flowchart TD
 | `web/tests/a11y.routes.spec.tsx`            | `web/routes`                      | Automated axe-core route accessibility gate in 3 themes at 140% font scale     |
 | `web/tests/e2e.happy-path.spec.tsx`         | `web/features`                    | End-to-end accessible happy-path flow across all signature views               |
 
-> **Total Test Suite Inventory**: **195 automated tests** across **49 test files** (172 server tests across 40 suites + 23 web tests across 9 suites), completing with **0 failures, 0 skipped, and 100% line coverage on pure domain engines**.
+> **Total Test Suite Inventory**: **216 automated tests** across **51 test files** (193 server tests across 42 suites + 23 web tests across 9 suites), completing with **0 failures, 0 skipped, 100.0% line coverage on pure domain engines, and 99.3% line coverage on application services**.
 
 ---
 

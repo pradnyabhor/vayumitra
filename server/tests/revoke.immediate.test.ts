@@ -74,10 +74,11 @@ describe("Instant Member Revocation (FR-13, Invariants)", () => {
       .set("Authorization", `Bearer ${memberToken}`);
     expect(beforeRevoke.status).toBe(200);
 
-    // Owner revokes member
+    // Owner revokes member (with confirmation)
     const revokeRes = await request(app)
       .delete(`/api/v1/household/members/${memberUserId}`)
-      .set("Authorization", `Bearer ${ownerToken}`);
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true");
     expect(revokeRes.status).toBe(204);
 
     // Member's very next request is rejected immediately with 401

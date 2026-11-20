@@ -79,4 +79,31 @@ describe("HouseholdService (FR-1, FR-19, Domain Invariants)", () => {
       ForbiddenError,
     );
   });
+
+  it("lists members for active member and denies for non-member", async () => {
+    const members = await householdService.listMembers(householdId, ownerUserId);
+    expect(members.length).toBeGreaterThan(0);
+    expect(members[0]?.userId).toBe(ownerUserId);
+
+    await expect(householdService.listMembers(householdId, "non-member-user")).rejects.toThrow(
+      ForbiddenError,
+    );
+  });
+
+  it("denies exportHouseholdData, updateHousehold, and deleteHousehold to unauthorized users", async () => {
+    // Export data by non-owner
+    await expect(
+      householdService.exportHouseholdData(householdId, "non-owner-user"),
+    ).rejects.toThrow(ForbiddenError);
+
+    // Update household by non-member
+    await expect(
+      householdService.updateHousehold(householdId, { cookingFuel: "lpg" }, "non-member-user"),
+    ).rejects.toThrow(ForbiddenError);
+
+    // Delete household by non-owner
+    await expect(
+      householdService.deleteHousehold(householdId, "non-owner-user", "corr", "Password123!"),
+    ).rejects.toThrow(ForbiddenError);
+  });
 });

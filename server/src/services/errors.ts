@@ -62,3 +62,12 @@ export class AccountLockedError extends DomainError {
     super("Account Locked", 429, message, { retryAfterSeconds });
   }
 }
+
+export class RateLimitExceededError extends DomainError {
+  constructor(
+    public retryAfterSeconds = 60,
+    message = "Rate limit exceeded. Please try again later.",
+  ) {
+    super("Too Many Requests", 429, message, { retryAfterSeconds });
+  }
+}

@@ -4,9 +4,11 @@ import { ScenarioProvider } from "../src/adapters/scenarioProvider.js";
 import { MemoryHouseholdRepository } from "../src/repositories/memory/memoryHouseholdRepo.js";
 import { MemoryOutboxRepository } from "../src/repositories/memory/memoryOutboxRepo.js";
 import { MemoryAuditRepository } from "../src/repositories/memory/memoryAuditRepo.js";
+import { MemoryCommunityRepository } from "../src/repositories/memory/memoryCommunityRepo.js";
 import { AlertService } from "../src/services/alert.service.js";
 import { AuthService } from "../src/services/auth.service.js";
 import { DemoService } from "../src/services/demo.service.js";
+import { seedDemoData } from "../src/services/demoSeed.js";
 
 describe("DemoService (FR-20, Judge Demo Controls)", () => {
   let clock: FakeClock;
@@ -71,5 +73,32 @@ describe("DemoService (FR-20, Judge Demo Controls)", () => {
     const res = await demoService.triggerGraceTimeout();
     expect(res).toBeDefined();
     expect(res.escalatedCount).toBeGreaterThanOrEqual(0);
+  });
+
+  it("seeds demo data cleanly and safely handles repository errors", async () => {
+    const communityRepo = new MemoryCommunityRepository();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mockContainer: any = {
+      householdRepo,
+      communityRepo,
+      authService,
+      clock,
+    };
+    await seedDemoData(mockContainer);
+
+    // Verify error branch in seedDemoData
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const failingContainer: any = {
+      householdRepo: {
+        createUser: async () => {
+          throw new Error("Simulated seed error");
+        },
+      },
+      communityRepo,
+      authService,
+      clock,
+    };
+    // Should catch error and not throw
+    await seedDemoData(failingContainer);
   });
 });

@@ -110,4 +110,137 @@ describe("Sensitive Operation Protection (Section 9 Security & Privacy)", () => 
     expect(res.body.exportedAt).toBeDefined();
     expect(Array.isArray(res.body.members)).toBe(true);
   });
+
+  it("protects password change with confirmation header and invalidates old sessions", async () => {
+    // 1. Missing confirmation
+    const noConfirm = await request(app)
+      .post("/api/v1/auth/password")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .send({
+        currentPassword: "OwnerSecPassword123!",
+        newPassword: "BrandNewSecurePassword456!",
+      });
+    expect(noConfirm.status).toBe(400);
+    expect(noConfirm.body.detail).toContain("x-confirm-action");
+
+    // 2. Missing fields
+    const missingFields = await request(app)
+      .post("/api/v1/auth/password")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true")
+      .send({ currentPassword: "OwnerSecPassword123!" });
+    expect(missingFields.status).toBe(400);
+
+    // 3. Wrong current password
+    const wrongCurrent = await request(app)
+      .post("/api/v1/auth/password")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true")
+      .send({
+        currentPassword: "WrongCurrentPassword123!",
+        newPassword: "BrandNewSecurePassword456!",
+      });
+    expect(wrongCurrent.status).toBe(401);
+
+    // 4. Short new password
+    const shortNew = await request(app)
+      .post("/api/v1/auth/password")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true")
+      .send({
+        currentPassword: "OwnerSecPassword123!",
+        newPassword: "short",
+      });
+    expect(shortNew.status).toBe(400);
+
+    // 5. Valid password change
+    const validChange = await request(app)
+      .post("/api/v1/auth/password")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true")
+      .send({
+        currentPassword: "OwnerSecPassword123!",
+        newPassword: "BrandNewSecurePassword456!",
+      });
+    expect(validChange.status).toBe(204);
+
+    // 6. Old session must be completely invalidated
+    const oldSessionCheck = await request(app)
+      .get("/api/v1/household")
+      .set("Authorization", `Bearer ${ownerToken}`);
+    expect(oldSessionCheck.status).toBe(401);
+
+    // 7. Login with new password works
+    const newLogin = await request(app).post("/api/v1/auth/login").send({
+      email: "secowner@delhi.local",
+      password: "BrandNewSecurePassword456!",
+    });
+    expect(newLogin.status).toBe(200);
+    expect(newLogin.body.token).toBeDefined();
+  });
+
+  it("protects member revocation and invitation revocation with confirmation header", async () => {
+    // Create an invitation
+    const inviteRes = await request(app)
+      .post("/api/v1/household/invitations")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .send({
+        scopes: ["VIEW_PLAN", "LOG_ACTIONS"],
+        expiresInDays: 7,
+        recipientEmail: "invitedmember@delhi.local",
+      });
+    expect(inviteRes.status).toBe(201);
+    const inviteId = inviteRes.body.invitation.id;
+
+    // 1. Revoking invitation without confirmation fails
+    const noConfirmInvite = await request(app)
+      .delete(`/api/v1/household/invitations/${inviteId}`)
+      .set("Authorization", `Bearer ${ownerToken}`);
+    expect(noConfirmInvite.status).toBe(400);
+
+    // 2. Revoking invitation with confirmation succeeds
+    const confirmInvite = await request(app)
+      .delete(`/api/v1/household/invitations/${inviteId}`)
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true");
+    expect(confirmInvite.status).toBe(204);
+
+    // Register a second member to test member revocation
+    const regMember = await request(app)
+      .post("/api/v1/auth/register")
+      .send({
+        email: "familymember@delhi.local",
+        password: "MemberPassword123!",
+        displayName: "Family Member",
+        householdName: "Second Household",
+        location: { name: "Delhi", lat: 28.6, lng: 77.2 },
+      });
+    const memberId = regMember.body.user.id;
+
+    // Create a new invitation and join it
+    const newInvite = await request(app)
+      .post("/api/v1/household/invitations")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .send({
+        scopes: ["VIEW_PLAN"],
+        expiresInDays: 7,
+      });
+    await request(app)
+      .post("/api/v1/household/invitations/join")
+      .set("Authorization", `Bearer ${regMember.body.token}`)
+      .send({ token: newInvite.body.token });
+
+    // 3. Revoking member without confirmation fails
+    const noConfirmMember = await request(app)
+      .delete(`/api/v1/household/members/${memberId}`)
+      .set("Authorization", `Bearer ${ownerToken}`);
+    expect(noConfirmMember.status).toBe(400);
+
+    // 4. Revoking member with confirmation succeeds
+    const confirmMember = await request(app)
+      .delete(`/api/v1/household/members/${memberId}`)
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true");
+    expect(confirmMember.status).toBe(204);
+  });
 });

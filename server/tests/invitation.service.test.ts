@@ -4,7 +4,7 @@ import { MemoryHouseholdRepository } from "../src/repositories/memory/memoryHous
 import { MemoryAuditRepository } from "../src/repositories/memory/memoryAuditRepo.js";
 import { AuthService } from "../src/services/auth.service.js";
 import { InvitationService } from "../src/services/invitation.service.js";
-import { ForbiddenError, ConflictError } from "../src/services/errors.js";
+import { ForbiddenError, ConflictError, NotFoundError } from "../src/services/errors.js";
 
 describe("InvitationService (FR-13, Invariants)", () => {
   let clock: FakeClock;
@@ -106,5 +106,48 @@ describe("InvitationService (FR-13, Invariants)", () => {
     await expect(
       invitationService.revokeMember(householdId, ownerUserId, ownerUserId),
     ).rejects.toThrow("Cannot revoke owner of the household");
+  });
+
+  it("lists active invitations for authorized household member", async () => {
+    await invitationService.createInvitation(householdId, ownerUserId, ["VIEW_PLAN"]);
+    const list = await invitationService.listInvitations(householdId, ownerUserId);
+    expect(list.length).toBeGreaterThan(0);
+
+    // Non-member or unauthorized fails
+    await expect(
+      invitationService.listInvitations(householdId, "unauthorized-user"),
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("handles non-existent member revocation and unauthorized revocation", async () => {
+    // Non-existent invitation token on accept
+    await expect(
+      invitationService.acceptInvitation("completely-invalid-token", "some-user"),
+    ).rejects.toThrow(NotFoundError);
+
+    // Revoking non-existent member
+    await expect(
+      invitationService.revokeMember(householdId, "non-existent-member", ownerUserId),
+    ).rejects.toThrow(NotFoundError);
+
+    // Revocation by user without REVOKE scope
+    await expect(
+      invitationService.revokeMember(householdId, "some-member", "unauthorized-user"),
+    ).rejects.toThrow(ForbiddenError);
+
+    // Revocation of non-existent invitation
+    await expect(
+      invitationService.revokeInvitation(householdId, "non-existent-inv", ownerUserId),
+    ).rejects.toThrow(NotFoundError);
+
+    // Revocation of invitation by unauthorized user
+    await expect(
+      invitationService.revokeInvitation(householdId, "some-inv", "unauthorized-user"),
+    ).rejects.toThrow(ForbiddenError);
+
+    // Creating invitation by unauthorized user
+    await expect(
+      invitationService.createInvitation(householdId, "unauthorized-user", ["VIEW_PLAN"]),
+    ).rejects.toThrow(ForbiddenError);
   });
 });

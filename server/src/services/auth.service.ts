@@ -280,4 +280,44 @@ export class AuthService {
     const tokenHash = this.hashToken(token);
     await this.householdRepo.deleteSession(tokenHash);
   }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+    correlationId = "system",
+  ): Promise<void> {
+    const user = await this.householdRepo.getUserById(userId);
+    if (!user) {
+      throw new AuthenticationError("User not found");
+    }
+
+    const validCurrent = await this.verifyPassword(currentPassword, user.passwordHash);
+    if (!validCurrent) {
+      throw new AuthenticationError("Current password is incorrect");
+    }
+
+    if (newPassword.length < 8) {
+      throw new ValidationError("New password must be at least 8 characters long");
+    }
+
+    const newPasswordHash = await this.hashPassword(newPassword);
+    await this.householdRepo.updateUserPassword(user.id, newPasswordHash);
+
+    // Invalidate all active sessions for this user across all households
+    await this.householdRepo.deleteUserSessions(user.id);
+
+    // Record audit event
+    await this.auditRepo.append({
+      tenantId: user.id,
+      actorId: user.id,
+      action: "AUTH_PASSWORD_CHANGE",
+      entityType: "USER",
+      entityId: user.id,
+      beforeSnapshot: null,
+      afterSnapshot: { changedAt: this.clock.now().toISOString() },
+      correlationId,
+      at: this.clock.now().toISOString(),
+    });
+  }
 }

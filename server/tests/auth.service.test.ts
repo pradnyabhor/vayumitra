@@ -134,4 +134,121 @@ describe("AuthService (FR-1, FR-13, Pillar 3 Security)", () => {
     await authService.logout(reg.token);
     await expect(authService.validateSession(reg.token)).rejects.toThrow(AuthenticationError);
   });
+
+  it("handles revoked membership and missing household in session validation", async () => {
+    const reg = await authService.register({
+      email: "validatefail@delhi.local",
+      password: "CorrectPassword123!",
+      displayName: "Validate Fail User",
+      householdName: "Validate Fail Home",
+      location: { name: "Delhi", lat: 28, lng: 77 },
+    });
+
+    // Create a second user with REVOKED membership to test membership revocation handling
+    const secondUser = await householdRepo.createUser({
+      id: "revoked-user-id",
+      email: "revoked@delhi.local",
+      passwordHash: "hash",
+      displayName: "Revoked Member",
+    });
+    await householdRepo.createMembership({
+      householdId: reg.household.id,
+      userId: secondUser.id,
+      role: "MEMBER",
+      scopes: ["READ"],
+      status: "REVOKED",
+    });
+    const revokedToken = "revoked-member-token";
+    const tokenHash = (authService as unknown as { hashToken: (t: string) => string }).hashToken(
+      revokedToken,
+    );
+    await householdRepo.createSession({
+      tokenHash,
+      userId: secondUser.id,
+      householdId: reg.household.id,
+      expiresAt: new Date(clock.now().getTime() + 100000),
+    });
+
+    await expect(authService.validateSession(revokedToken)).rejects.toThrow(
+      "Membership has been revoked or is inactive",
+    );
+
+    // Create session for non-existent household
+    const fakeToken = "fake-token-missing-hh";
+    const fakeHash = (authService as unknown as { hashToken: (t: string) => string }).hashToken(
+      fakeToken,
+    );
+    await householdRepo.createSession({
+      tokenHash: fakeHash,
+      userId: reg.user.id,
+      householdId: "missing-household-id",
+      expiresAt: new Date(clock.now().getTime() + 1000000),
+    });
+    // Create active membership for missing household
+    await householdRepo.createMembership({
+      householdId: "missing-household-id",
+      userId: reg.user.id,
+      role: "OWNER",
+      scopes: ["READ"],
+      status: "ACTIVE",
+    });
+
+    await expect(authService.validateSession(fakeToken)).rejects.toThrow("Household not found");
+  });
+
+  it("handles password change with verification, validation, and session invalidation", async () => {
+    const reg = await authService.register({
+      email: "pwdchange@delhi.local",
+      password: "OriginalPassword123!",
+      displayName: "Password Change User",
+      householdName: "Password Change Home",
+      location: { name: "Delhi", lat: 28, lng: 77 },
+    });
+
+    // 1. Non-existent user
+    await expect(
+      authService.changePassword("non-existent-user", "OriginalPassword123!", "NewPassword123!"),
+    ).rejects.toThrow("User not found");
+
+    // 2. Incorrect current password
+    await expect(
+      authService.changePassword(reg.user.id, "WrongOriginalPassword!", "NewPassword123!"),
+    ).rejects.toThrow("Current password is incorrect");
+
+    // 3. Short new password
+    await expect(
+      authService.changePassword(reg.user.id, "OriginalPassword123!", "short"),
+    ).rejects.toThrow("New password must be at least 8 characters long");
+
+    // 4. Valid password change
+    await authService.changePassword(
+      reg.user.id,
+      "OriginalPassword123!",
+      "BrandNewPassword456!",
+      "corr-pwd",
+    );
+
+    // Old token should be invalidated
+    await expect(authService.validateSession(reg.token)).rejects.toThrow(AuthenticationError);
+  });
+
+  it("handles non-existent user on login and session validation", async () => {
+    // 1. Login with non-existent user
+    await expect(
+      authService.login({ email: "ghost@delhi.local", password: "Password123!" }),
+    ).rejects.toThrow(AuthenticationError);
+
+    // 2. Validate session where user record was deleted
+    const ghostToken = "ghost-token-no-user";
+    const ghostHash = (authService as unknown as { hashToken: (t: string) => string }).hashToken(
+      ghostToken,
+    );
+    await householdRepo.createSession({
+      tokenHash: ghostHash,
+      userId: "deleted-user-id",
+      householdId: "some-household",
+      expiresAt: new Date(clock.now().getTime() + 100000),
+    });
+    await expect(authService.validateSession(ghostToken)).rejects.toThrow("User not found");
+  });
 });
