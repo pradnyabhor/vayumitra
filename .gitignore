@@ -19,6 +19,12 @@ out/
 # Scratch and private notes
 donotpush/
 
+# Media and demo recordings
+docs/demo/
+*.mp4
+*.webm
+*.wav
+
 # Testing and coverage
 coverage/
 *.lcov

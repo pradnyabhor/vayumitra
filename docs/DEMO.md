@@ -1,15 +1,10 @@
-# VayuMitra: 3-Minute Live Judge Demo Script & Video Artifacts
+# VayuMitra: 3-Minute Live Judge Demo Script
 
 This script walks through the core capabilities of **VayuMitra** in 3 minutes, demonstrating the contrast between deterministic engineering and grounded GenAI.
 
-## Video Demo & Voiceover Artifacts
-
-- **High-Definition Demo Video (MP4):** [`vayumitra-demo.mp4`](demo/vayumitra-demo.mp4) (H.264 / AAC, 3.7 MB)
-- **High-Definition Demo Video (WebM):** [`vayumitra-demo.webm`](demo/vayumitra-demo.webm) (VP9 / Opus, 15.2 MB)
-- **Interactive Player with Timestamps:** [`index.html`](demo/index.html)
-- **Synthesized Voiceover Audio:** [`voiceover.wav`](demo/voiceover.wav) (4.5 MB, Microsoft Zira voice engine)
-- **Automated Recording Script:** [`../scripts/record-demo-video.js`](../scripts/record-demo-video.js) (Playwright automation)
-- **Voiceover Generation Script:** [`../scripts/generate-voiceover.ps1`](../scripts/generate-voiceover.ps1) (SAPI text-to-speech)
+- **Live Cloud Run URL:** [https://vayumitra-sds4thdc6a-el.a.run.app](https://vayumitra-sds4thdc6a-el.a.run.app)
+- **Judge Demo Bar:** Enabled live via `DEMO_MODE=true`
+- **Synthetic Personas:** Riya (Owner), Dadaji (Member), Mr. Kulkarni (Community Admin)
 
 ---
 
