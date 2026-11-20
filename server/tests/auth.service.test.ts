@@ -250,5 +250,48 @@ describe("AuthService (FR-1, FR-13, Pillar 3 Security)", () => {
       expiresAt: new Date(clock.now().getTime() + 100000),
     });
     await expect(authService.validateSession(ghostToken)).rejects.toThrow("User not found");
+
+    // 3. User with no memberships attempting to login
+    const orphanPasswordHash = await (
+      authService as unknown as { hashPassword: (p: string) => Promise<string> }
+    ).hashPassword("ValidPassword123!");
+    await householdRepo.createUser({
+      id: "orphan-user",
+      email: "orphan@delhi.local",
+      displayName: "Orphan",
+      passwordHash: orphanPasswordHash,
+    });
+    await expect(
+      authService.login({ email: "orphan@delhi.local", password: "ValidPassword123!" }),
+    ).rejects.toThrow("User is not associated with any active household");
+
+    // 4. User with membership pointing to deleted / missing household
+    await householdRepo.createMembership({
+      householdId: "deleted-household-id",
+      userId: "orphan-user",
+      role: "MEMBER",
+      scopes: ["READ"],
+      status: "ACTIVE",
+    });
+    await expect(
+      authService.login({ email: "orphan@delhi.local", password: "ValidPassword123!" }),
+    ).rejects.toThrow("Household not found");
+  });
+
+  it("allows login specifying target householdId", async () => {
+    const reg = await authService.register({
+      email: "multihousehold@delhi.local",
+      password: "StrongPassword123!",
+      displayName: "Multi",
+      householdName: "Multi Home",
+      location: { name: "Delhi", lat: 28, lng: 77 },
+    });
+    const loginRes = await authService.login({
+      email: "multihousehold@delhi.local",
+      password: "StrongPassword123!",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      householdId: reg.household.id,
+    } as unknown as { email: string; password: string });
+    expect(loginRes.household.id).toBe(reg.household.id);
   });
 });

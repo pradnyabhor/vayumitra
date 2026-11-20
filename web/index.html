@@ -11,11 +11,11 @@
     <script>
       // Apply persisted font scale and contrast before first paint to prevent layout flash
       try {
-        const savedContrast = localStorage.getItem("vayumitra.contrast");
+        const savedContrast = localStorage.getItem("saans.contrast") || localStorage.getItem("vayumitra.contrast");
         if (savedContrast === "high") {
           document.documentElement.setAttribute("data-contrast", "high");
         }
-        const savedScale = localStorage.getItem("vayumitra.fontScale");
+        const savedScale = localStorage.getItem("saans.fontScale") || localStorage.getItem("vayumitra.fontScale");
         if (savedScale) {
           document.documentElement.style.fontSize = savedScale;
         }

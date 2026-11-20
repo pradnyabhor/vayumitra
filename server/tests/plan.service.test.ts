@@ -116,4 +116,34 @@ describe("PlanService (FR-1, FR-3, FR-16 Calendar Export, Action Toggles)", () =
     expect(icsContent).toContain("END:VEVENT");
     expect(icsContent).toContain("END:VCALENDAR");
   });
+
+  it("handles households with electric cooking fuel and purifiers", async () => {
+    const electricHouseholdId = "hh-electric";
+    await householdRepo.createHousehold(
+      {
+        id: electricHouseholdId,
+        name: "Electric Cooking Household",
+        location: { name: "Delhi", lat: 28.6, lng: 77.2 },
+        members: [],
+        rooms: [
+          {
+            id: "r1",
+            name: "Living",
+            volumeM3: 45,
+            hasPurifier: true,
+            purifierCadrM3h: 300,
+            windowsHabit: "closed",
+          },
+        ],
+        cookingFuel: "electric" as unknown as "lpg",
+        aiPersonalizationConsent: false,
+        shareWithCommunityConsent: false,
+        preferredLanguage: "en",
+      },
+      ownerUserId,
+    );
+
+    const plan = await planService.getTodayPlan(electricHouseholdId, ownerUserId);
+    expect(plan.cards.length).toBeGreaterThan(0);
+  });
 });

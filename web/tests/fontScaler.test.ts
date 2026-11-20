@@ -14,21 +14,29 @@ describe("Root Rem Scaler Verification (Pillar 5, §10)", () => {
     current = cycle(current);
     expect(current).toBe("120%");
     document.documentElement.style.fontSize = current;
+    localStorage.setItem("saans.fontScale", current);
     localStorage.setItem("vayumitra.fontScale", current);
     expect(document.documentElement.style.fontSize).toBe("120%");
+    expect(localStorage.getItem("saans.fontScale")).toBe("120%");
     expect(localStorage.getItem("vayumitra.fontScale")).toBe("120%");
 
     current = cycle(current);
     expect(current).toBe("140%");
     document.documentElement.style.fontSize = current;
+    localStorage.setItem("saans.fontScale", current);
     localStorage.setItem("vayumitra.fontScale", current);
     expect(document.documentElement.style.fontSize).toBe("140%");
+    expect(localStorage.getItem("saans.fontScale")).toBe("140%");
+    expect(localStorage.getItem("vayumitra.fontScale")).toBe("140%");
 
     current = cycle(current);
     expect(current).toBe("100%");
     document.documentElement.style.fontSize = current;
+    localStorage.setItem("saans.fontScale", current);
     localStorage.setItem("vayumitra.fontScale", current);
     expect(document.documentElement.style.fontSize).toBe("100%");
+    expect(localStorage.getItem("saans.fontScale")).toBe("100%");
+    expect(localStorage.getItem("vayumitra.fontScale")).toBe("100%");
   });
 
   it("applies fontScale without layout shift", () => {

@@ -39,7 +39,7 @@ export function createHouseholdRouter(c: Container): Router {
 
   // Export household data (Sensitive operation: requires step-up password and confirmation)
   router.all(
-    "/export",
+    ["/export", "/profile/export"],
     auth,
     requirePermission("READ"),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -86,7 +86,7 @@ export function createHouseholdRouter(c: Container): Router {
 
   // Household Profile
   router.get(
-    "/",
+    ["/", "/profile"],
     auth,
     requirePermission("READ"),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -100,7 +100,7 @@ export function createHouseholdRouter(c: Container): Router {
   );
 
   router.patch(
-    "/",
+    ["/", "/profile"],
     auth,
     requirePermission("UPDATE"),
     async (req: Request, res: Response, next: NextFunction) => {
@@ -120,7 +120,7 @@ export function createHouseholdRouter(c: Container): Router {
   );
 
   router.delete(
-    "/",
+    ["/", "/profile"],
     auth,
     requirePermission("DELETE"),
     async (req: Request, res: Response, next: NextFunction) => {

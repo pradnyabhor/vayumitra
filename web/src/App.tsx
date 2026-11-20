@@ -36,9 +36,11 @@ export function App() {
     setHighContrast(next);
     if (next) {
       document.documentElement.setAttribute("data-contrast", "high");
+      localStorage.setItem("saans.contrast", "high");
       localStorage.setItem("vayumitra.contrast", "high");
     } else {
       document.documentElement.removeAttribute("data-contrast");
+      localStorage.removeItem("saans.contrast");
       localStorage.removeItem("vayumitra.contrast");
     }
   };
@@ -47,6 +49,7 @@ export function App() {
     const next = fontScale === "100%" ? "120%" : fontScale === "120%" ? "140%" : "100%";
     setFontScale(next);
     document.documentElement.style.fontSize = next;
+    localStorage.setItem("saans.fontScale", next);
     localStorage.setItem("vayumitra.fontScale", next);
   };
 

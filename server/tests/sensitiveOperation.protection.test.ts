@@ -243,4 +243,22 @@ describe("Sensitive Operation Protection (Section 9 Security & Privacy)", () => 
       .set("x-confirm-action", "true");
     expect(confirmMember.status).toBe(204);
   });
+
+  it("supports sensitive operations on /profile alias paths", async () => {
+    // Test export on /profile/export
+    const exportRes = await request(app)
+      .post("/api/v1/household/profile/export")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true")
+      .send({ stepUpPassword: "OwnerSecPassword123!" });
+    expect(exportRes.status).toBe(200);
+
+    // Test delete on /profile
+    const delRes = await request(app)
+      .delete("/api/v1/household/profile")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .set("x-confirm-action", "true")
+      .send({ stepUpPassword: "OwnerSecPassword123!" });
+    expect(delRes.status).toBe(204);
+  });
 });

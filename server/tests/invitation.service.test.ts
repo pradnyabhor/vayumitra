@@ -108,6 +108,22 @@ describe("InvitationService (FR-13, Invariants)", () => {
     ).rejects.toThrow("Cannot revoke owner of the household");
   });
 
+  it("allows owner to revoke a regular member successfully", async () => {
+    const { token } = await invitationService.createInvitation(householdId, ownerUserId, [
+      "VIEW_PLAN",
+    ]);
+    await invitationService.acceptInvitation(token, inviteeUserId);
+
+    await invitationService.revokeMember(
+      householdId,
+      inviteeUserId,
+      ownerUserId,
+      "corr-revoke-mem",
+    );
+    const mem = await householdRepo.getMembership(householdId, inviteeUserId);
+    expect(mem?.status).toBe("REVOKED");
+  });
+
   it("lists active invitations for authorized household member", async () => {
     await invitationService.createInvitation(householdId, ownerUserId, ["VIEW_PLAN"]);
     const list = await invitationService.listInvitations(householdId, ownerUserId);
@@ -149,5 +165,14 @@ describe("InvitationService (FR-13, Invariants)", () => {
     await expect(
       invitationService.createInvitation(householdId, "unauthorized-user", ["VIEW_PLAN"]),
     ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("rejects accepting invitation if user is already an active member", async () => {
+    const { token } = await invitationService.createInvitation(householdId, ownerUserId, [
+      "VIEW_PLAN",
+    ]);
+    await expect(invitationService.acceptInvitation(token, ownerUserId)).rejects.toThrow(
+      "You are already an active member of this household",
+    );
   });
 });

@@ -9,5 +9,14 @@ export function requestIdMiddleware(req: Request, res: Response, next: NextFunct
 
   req.correlationId = correlationId;
   res.setHeader("x-correlation-id", correlationId);
+  res.setHeader("x-request-id", correlationId);
+
+  const cloudTraceHeader = req.headers["x-cloud-trace-context"] as string | undefined;
+  if (cloudTraceHeader) {
+    const traceId = cloudTraceHeader.split("/")[0];
+    req.traceId = traceId;
+    res.setHeader("x-cloud-trace-context", cloudTraceHeader);
+  }
+
   next();
 }

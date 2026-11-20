@@ -4,6 +4,7 @@ declare global {
   namespace Express {
     interface Request {
       correlationId?: string;
+      traceId?: string;
       user?: {
         id: string;
         email: string;

@@ -33,11 +33,7 @@ function createHouseholdPlanContext(
   };
 
   const hasPurifier = household.rooms.some((r) => r.hasPurifier && r.purifierCadrM3h > 0);
-  const forecastHours =
-    forecast.hours ||
-    (forecast as unknown as { series: Array<{ aqi: number; pm25: number; time: string }> })
-      .series ||
-    [];
+  const forecastHours = forecast.hours ?? [];
 
   return {
     currentAqi,

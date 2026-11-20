@@ -6,8 +6,8 @@ This document records the measured engineering, performance, security, and acces
 
 ## 1. Test Suite & Coverage
 
-- **Total Unit, Integration & Security Tests**: **216 tests across 51 test files**
-  - **Server Tests**: 193 tests across 42 test suites (including LSP repository contract suite and sensitive operation protection)
+- **Total Unit, Integration & Security Tests**: **241 tests across 53 test files**
+  - **Server Tests**: 218 tests across 44 test suites (including explicit SOLID architectural principles verification and sensitive operation protection)
   - **Web Tests**: 23 tests across 9 test suites (including WCAG 2.2 AA axe-core routes and e2e happy path)
 - **Execution Time**: Under 5.0 seconds in test mode
 - **Zero Failures, Zero Skipped Tests**: 100% green pass rate
@@ -21,34 +21,28 @@ This document records the measured engineering, performance, security, and acces
 | - `core/aqi.ts`                                     |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `core/breatheScore.ts`                            |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `core/emissions.ts`                               |    100.0%     |     100.0%      |      100.0%       |         PASS         |
-| - `core/exposure.ts`                                |    100.0%     |      93.3%      |      100.0%       |         PASS         |
-| - `core/ics.ts`                                     |    100.0%     |      85.7%      |      100.0%       |         PASS         |
+| - `core/exposure.ts`                                |    100.0%     |     100.0%      |      100.0%       |         PASS         |
+| - `core/ics.ts`                                     |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `core/indoor.ts`                                  |    100.0%     |      95.8%      |      100.0%       |         PASS         |
 | - `core/kAnonymity.ts`                              |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `core/knowledge.ts`                               |    100.0%     |     100.0%      |      100.0%       |         PASS         |
-| - `core/planEngine.ts`                              |    100.0%     |      96.6%      |      100.0%       |         PASS         |
+| - `core/planEngine.ts`                              |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `core/safety.ts`                                  |    100.0%     |      96.1%      |      100.0%       |         PASS         |
 | - `core/smogDrivers.ts`                             |    100.0%     |     100.0%      |      100.0%       |         PASS         |
-| **`server/src/ai/**` (GenAI Guardrails)**           |   **98.6%**   |    **88.4%**    |    **100.0%**     |       **PASS**       |
-| - `ai/factsBuilder.ts`                              |    100.0%     |      91.6%      |      100.0%       |         PASS         |
-| - `ai/fallbackTemplates.ts`                         |    100.0%     |     100.0%      |      100.0%       |         PASS         |
-| - `ai/geminiClient.ts`                              |     96.5%     |      80.0%      |      100.0%       |         PASS         |
-| - `ai/mythChecker.ts`                               |    100.0%     |      95.2%      |      100.0%       |         PASS         |
-| - `ai/retrieval.ts`                                 |    100.0%     |      85.7%      |      100.0%       |         PASS         |
-| - `ai/validators.ts`                                |    100.0%     |      87.5%      |      100.0%       |         PASS         |
-| **`server/src/services/**` (Application Services)** |   **99.3%**   |    **88.6%**    |    **100.0%**     |       **PASS**       |
-| - `services/alert.service.ts`                       |     99.1%     |      68.8%      |      100.0%       |         PASS         |
+| **`server/src/services/**` (Application Services)** |  **100.0%**   |    **92.6%**    |    **100.0%**     | **PASS (100% Gate)** |
+| - `services/alert.service.ts`                       |    100.0%     |      84.2%      |      100.0%       |         PASS         |
 | - `services/audit.service.ts`                       |    100.0%     |     100.0%      |      100.0%       |         PASS         |
-| - `services/auth.service.ts`                        |     98.5%     |      91.7%      |      100.0%       |         PASS         |
+| - `services/auth.service.ts`                        |    100.0%     |      95.8%      |      100.0%       |         PASS         |
 | - `services/community.service.ts`                   |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `services/demo.service.ts`                        |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `services/demoSeed.ts`                            |    100.0%     |     100.0%      |      100.0%       |         PASS         |
 | - `services/errors.ts`                              |    100.0%     |     100.0%      |      100.0%       |         PASS         |
-| - `services/household.service.ts`                   |    100.0%     |      85.4%      |      100.0%       |         PASS         |
+| - `services/household.service.ts`                   |    100.0%     |      85.7%      |      100.0%       |         PASS         |
 | - `services/impact.service.ts`                      |    100.0%     |      77.8%      |      100.0%       |         PASS         |
-| - `services/invitation.service.ts`                  |     99.0%     |      93.2%      |      100.0%       |         PASS         |
+| - `services/invitation.service.ts`                  |    100.0%     |      97.7%      |      100.0%       |         PASS         |
 | - `services/outbox.service.ts`                      |    100.0%     |     100.0%      |      100.0%       |         PASS         |
-| - `services/plan.service.ts`                        |     97.5%     |      77.3%      |      100.0%       |         PASS         |
+| - `services/plan.service.ts`                        |    100.0%     |      87.0%      |      100.0%       |         PASS         |
+| **`server/src/middleware/requestId.ts`**            |  **100.0%**   |   **100.0%**    |    **100.0%**     |         PASS         |
 
 ---
 

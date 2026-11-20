@@ -6,22 +6,27 @@ describe("High-Contrast Mode Verification (Pillar 5, §10)", () => {
     localStorage.clear();
   });
 
-  it("persists high-contrast preference in localStorage key vayumitra.contrast", () => {
+  it("persists high-contrast preference in localStorage keys saans.contrast and vayumitra.contrast", () => {
     document.documentElement.setAttribute("data-contrast", "high");
+    localStorage.setItem("saans.contrast", "high");
     localStorage.setItem("vayumitra.contrast", "high");
 
+    expect(localStorage.getItem("saans.contrast")).toBe("high");
     expect(localStorage.getItem("vayumitra.contrast")).toBe("high");
     expect(document.documentElement.getAttribute("data-contrast")).toBe("high");
   });
 
   it("removes high-contrast attribute when toggled off", () => {
     document.documentElement.setAttribute("data-contrast", "high");
+    localStorage.setItem("saans.contrast", "high");
     localStorage.setItem("vayumitra.contrast", "high");
 
     // Toggle off
     document.documentElement.removeAttribute("data-contrast");
+    localStorage.removeItem("saans.contrast");
     localStorage.removeItem("vayumitra.contrast");
 
+    expect(localStorage.getItem("saans.contrast")).toBeNull();
     expect(localStorage.getItem("vayumitra.contrast")).toBeNull();
     expect(document.documentElement.hasAttribute("data-contrast")).toBe(false);
   });

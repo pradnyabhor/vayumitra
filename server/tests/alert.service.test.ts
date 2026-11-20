@@ -113,4 +113,41 @@ describe("AlertService (FR-15, Thresholds, Ack, Escalation)", () => {
     const alerts = await customAlertService.evaluateAlertsForHousehold(householdId);
     expect(alerts.length).toBe(1);
   });
+
+  it("handles empty forecast without hours or series safely", async () => {
+    const emptyProvider = {
+      getCurrent: async () => scenarioProvider.getCurrent({ name: "Delhi", lat: 28.6, lng: 77.2 }),
+      getForecast: async () => ({}) as unknown as { hours: [] },
+    };
+    const customAlertService = new AlertService(
+      householdRepo,
+      outboxRepo,
+      auditRepo,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      emptyProvider as any,
+      clock,
+    );
+    const alerts = await customAlertService.evaluateAlertsForHousehold(householdId);
+    expect(alerts.length).toBe(0);
+  });
+
+  it("uses default alert preferences when household has none configured", async () => {
+    const noPrefHouseholdId = "hh-no-pref";
+    await householdRepo.createHousehold(
+      {
+        id: noPrefHouseholdId,
+        name: "No Pref Household",
+        location: { name: "Delhi", lat: 28.6, lng: 77.2 },
+        members: [],
+        rooms: [],
+        cookingFuel: "lpg",
+        aiPersonalizationConsent: false,
+        shareWithCommunityConsent: false,
+        preferredLanguage: "en",
+      },
+      "user-no-pref",
+    );
+    const alerts = await alertService.evaluateAlertsForHousehold(noPrefHouseholdId);
+    expect(alerts.length).toBe(1);
+  });
 });

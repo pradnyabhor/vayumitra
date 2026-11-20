@@ -46,17 +46,30 @@ flowchart TD
 
 ## 3. Sensitive Operation Protection (Section 8)
 
-High-stakes and irreversible operations enforce step-up re-authentication and explicit human confirmation headers:
+High-stakes and irreversible operations enforce step-up re-authentication, explicit human confirmation headers, and immediate session invalidation:
 
-1. **Household Profile Deletion (`DELETE /api/v1/household/profile`)**:
+1. **Household Profile Deletion (`DELETE /api/v1/household` and `DELETE /api/v1/household/profile`)**:
    - Requires HTTP Header `x-confirm-action: true` (or body `confirmAction: true`).
    - Requires HTTP Header `x-step-up-password: <password>` (or body `stepUpPassword`).
    - Verifies against the user's `scrypt` password hash.
-   - Deletes all sessions and appends an immutable audit log entry.
-2. **Household Data Export (`POST /api/v1/household/export`)**:
+   - Purges household data, invalidates all sessions, and appends an immutable audit log entry.
+2. **Household Data Export (`POST /api/v1/household/export` and `POST /api/v1/household/profile/export`)**:
    - Requires HTTP Header `x-confirm-action: true` (or body `confirmAction: true`).
    - Requires HTTP Header `x-step-up-password: <password>` (or body `stepUpPassword`).
-   - Validates owner identity and compiles complete household state into an encrypted JSON export.
+   - Validates owner identity and compiles complete household state into an exportable JSON payload.
+3. **Password Change (`POST /api/v1/auth/password`)**:
+   - Requires HTTP Header `x-confirm-action: true` (or body `confirmAction: true`).
+   - Verifies current password before hashing the new password.
+   - Enforces password length $\ge 8$ and common password denylist.
+   - Immediately invalidates all existing active bearer sessions for that user across all devices.
+4. **Member Revocation (`DELETE /api/v1/household/members/:targetUserId`)**:
+   - Requires HTTP Header `x-confirm-action: true` (or body `confirmAction: true`).
+   - Guarded by `requirePermission("REVOKE")`. Prevents revoking household owner.
+   - Immediately transitions membership status to `REVOKED` and purges active sessions.
+5. **Invitation Revocation (`DELETE /api/v1/household/invitations/:id`)**:
+   - Requires HTTP Header `x-confirm-action: true` (or body `confirmAction: true`).
+   - Guarded by `requirePermission("REVOKE")`.
+   - Transitions invitation status to `REVOKED` with `revokedAt` timestamp, rendering the token unusable.
 
 ---
 

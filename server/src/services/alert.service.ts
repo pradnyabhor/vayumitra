@@ -30,9 +30,9 @@ export class AlertService {
 
     const forecast = await this.airProvider.getForecast(household.location, 24);
     const hours =
-      forecast.hours ||
-      (forecast as unknown as { series: Array<{ aqi: number; time: string; category: string }> })
-        .series ||
+      forecast.hours ??
+      (forecast as unknown as { series?: Array<{ aqi: number; time: string; category: string }> })
+        .series ??
       [];
     const severeSpikes = hours.filter((s) => s.aqi >= pref.aqiThreshold);
     if (severeSpikes.length === 0) return [];
