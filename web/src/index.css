@@ -1,0 +1,52 @@
+@import "./a11y/high-contrast.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-good: #2e9e4f;
+  --color-satisfactory: #7bc043;
+  --color-moderate: #f2c230;
+  --color-poor: #f28c28;
+  --color-very-poor: #e0443e;
+  --color-severe: #8e1b3a;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  line-height: 1.5 !important;
+  overflow-wrap: break-word;
+  font-family:
+    "Plus Jakarta Sans",
+    "Noto Sans Devanagari",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+/* Touch manipulation optimization for mobile */
+button,
+a,
+input,
+select {
+  touch-action: manipulation;
+}
+
+/* Safe area support for iOS home indicator */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0.25rem);
+}
+
+/* Tabular numerals for AQI data metrics */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
